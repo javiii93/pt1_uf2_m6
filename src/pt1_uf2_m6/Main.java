@@ -1,9 +1,9 @@
 package pt1_uf2_m6;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class Main {
 		
 		connect();
 		createNewDatabase("forHonor.db");
-		sql="CREATE TABLE IF NOT EXISTS Faccion (\n"
+		/*sql="CREATE TABLE IF NOT EXISTS Faccion (\n"
                 + "    faccion_id integer PRIMARY KEY,\n"
                 + "    nombre_faccion VARCHAR(15) NOT NULL,\n"
                 + "    lore  VARCHAR(200)\n"
@@ -60,13 +60,58 @@ public class Main {
                 + "    FOREIGN KEY(faccion_id) REFERENCES Faccion(faccion_id)\n"
                 + ");";
 		createNewTable(sql);
+		for(int i=0;i<facciones.size();i++){
+			facciones.get(1).insertFaccion(facciones.get(i), url);
+		}
 		
-		
+		for(int j=0;j<personajes.size();j++) {
+			personajes.get(1).insertPersonaje(personajes.get(j), url);
+		}*/
+				busquedaCaballeros();
+				busquedaSamuraiMasPoderoso();
 	}
 
 	/**
 	 * Connect to a sample database
 	 */
+	public static void busquedaCaballeros() {
+String sql2 = "SELECT * FROM Personaje where faccion_id='1';";
+        
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt  = conn.createStatement();
+             ResultSet rs    = stmt.executeQuery(sql2)){
+            
+            // loop through the result set
+            while (rs.next()) {
+                System.out.println(rs.getInt("id") +  "\t" + 
+                                   rs.getString("Nombre") + "\t" +
+                                   rs.getFloat("ataque")+ "\t" +
+                                   rs.getFloat("Defensa")+ "\t" +
+                                   rs.getInt("Faccion_Id"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+	}
+	public static void busquedaSamuraiMasPoderoso() {
+		String sql2 = "SELECT * FROM Personaje where faccion_id='3' and ataque=(select max(ataque) from Personaje where faccion_id='3');";
+		        
+		        try (Connection conn = DriverManager.getConnection(url);
+		             Statement stmt  = conn.createStatement();
+		             ResultSet rs    = stmt.executeQuery(sql2)){
+		            
+		            // loop through the result set
+		            while (rs.next()) {
+		                System.out.println(rs.getInt("id") +  "\t" + 
+		                                   rs.getString("Nombre") + "\t" +
+		                                   rs.getFloat("ataque")+ "\t" +
+		                                   rs.getFloat("Defensa")+ "\t" +
+		                                   rs.getInt("Faccion_Id"));
+		            }
+		        } catch (SQLException e) {
+		            System.out.println(e.getMessage());
+		        }
+			}
 	public static void connect() {
 		Connection conn = null;
 		try {
@@ -91,7 +136,6 @@ public class Main {
 	}
 	 public static void createNewDatabase(String fileName) {
 		 
-	        //url = "jdbc:sqlite:C" + fileName;
 	 url=url+fileName;
 	        try (Connection conn = DriverManager.getConnection(url)) {
 	            if (conn != null) {
@@ -112,6 +156,7 @@ public class Main {
 	                Statement stmt = conn.createStatement()) {
 	            // create a new table
 	            stmt.execute(sql);
+	            System.out.println("table has been created");
 	        } catch (SQLException e) {
 	            System.out.println(e.getMessage());
 	        }
